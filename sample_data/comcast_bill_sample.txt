@@ -1,0 +1,21 @@
+SAMPLE CUSTOMER BILL
+
+Monthly Statement Summary
+Previous Balance 103.61
+Comcast Paydirect - 12/12/15 -103.61
+New Charges - see below 108.82
+
+Total Amount Due $108.82
+Auto Pay 01/12/16
+
+New Charges Summary
+- XFINITY TV 93.84
+- Other Charges & Credits 8.53
+- Taxes, Surcharges & Fees 6.45
+- Total New Charges $108.82
+
+Account Number
+Auto Pay 01/12/16
+Total Amount Due $108.82
+
+Autopay Payment Will Be Made On '01/12/16'

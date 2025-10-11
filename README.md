@@ -1,2 +1,27 @@
-# invoice-ai-extractor
-AI-powered invoice data extraction system
+# InvoiceAI Extractor
+
+An intelligent invoice processing system that uses AI to automatically extract key information from PDF invoices.
+
+## Features
+- PDF invoice upload
+- AI-powered data extraction (Invoice Date, Number, Amount, Due Date)
+- RESTful API
+- Web interface
+
+## Tech Stack
+- Backend: Django REST Framework
+- AI: OpenAI GPT + Traditional NLP
+- Frontend: React
+- Database: PostgreSQL
+
+## Quick Start
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+python manage.py runserver
+
+# Frontend  
+cd frontend
+npm install
+npm start
