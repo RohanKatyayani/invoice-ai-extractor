@@ -1,13 +1,13 @@
+
+
 # Sample Invoice Data
 
 This folder contains sample invoices for testing the extraction system.
 
-## Current Sample:
-- `comcast_bill.pdf`: Sample Comcast invoice with typical fields like:
-  - Invoice Date
-  - Invoice Number  
-  - Amount Due
-  - Due Date
+## Files:
+- `Comcast Bill.pdf`: Actual PDF invoice for testing PDF processing
+- `comcast_bill_sample.txt`: Text version for quick reference during development
 
-## Sample Data
-The `sample_data/` folder contains example invoices for testing the extraction capabilities.
+## Why Both?
+- PDF: Tests real file upload and text extraction
+- Text: Easy reference while coding extraction logic
