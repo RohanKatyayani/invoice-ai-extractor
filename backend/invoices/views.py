@@ -19,19 +19,46 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
     queryset = Invoice.objects.all()
 
+    # def get_queryset(self):
+    #     """
+    #     Ensure users can only see their own invoices.
+    #     This is for security and data isolation.
+    #     """
+    #     user = self.request.user
+    #     return self.queryset.filter(user=user)
+
     def get_queryset(self):
         """
         Ensure users can only see their own invoices.
-        This is for security and data isolation.
+        Handle both authenticated users and anonymous users.
         """
         user = self.request.user
-        return self.queryset.filter(user=user)
+
+        # If user is authenticated, return their invoices
+        if user.is_authenticated:
+            return self.queryset.filter(user=user)
+        else:
+            # If user is not authenticated, return empty queryset
+            return self.queryset.none()
+
+    # def perform_create(self, serializer):
+    #     """
+    #     Automatically assign the current user when creating an invoice.
+    #     """
+    #     serializer.save(user=self.request.user)
 
     def perform_create(self, serializer):
         """
         Automatically assign the current user when creating an invoice.
+        Only allow creation for authenticated users.
         """
-        serializer.save(user=self.request.user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            # If not authenticated, you might want to handle this differently
+            # For now, we'll raise an error
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You must be logged in to create invoices")
 
     @action(detail=True, methods=['post'])
     def extract_information(self, request, pk=None):

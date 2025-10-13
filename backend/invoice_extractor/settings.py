@@ -24,6 +24,7 @@ ALLOWED_HOSTS = []
 # INSTALLED_APPS: Which "components" Django should use
 # Think of apps like "plugins" or "modules" in our project
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',         # Handles user authentication
     'django.contrib.contenttypes', # Tracks database models
     'django.contrib.sessions',     # Manages user sessions
@@ -41,6 +42,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',               # URL processing
     'django.middleware.csrf.CsrfViewMiddleware',               # CSRF protection
     'django.contrib.auth.middleware.AuthenticationMiddleware', # User auth
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',    # Message handling
 ]
 
@@ -67,3 +69,38 @@ STATIC_URL = 'static/'
 
 # DEFAULT PRIMARY KEY: Type of primary key for models
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.SessionAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+#     'DEFAULT_RENDERER_CLASSES': [
+#         'rest_framework.renderers.JSONRenderer',
+#         'rest_framework.renderers.BrowsableAPIRenderer',  # This enables the HTML interface
+#     ]
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Change to AllowAny
+    ]
+}

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Invoice
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -39,3 +40,34 @@ class InvoiceSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         validated_data['user'] = user
         return super().create(validated_data)
+
+class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User model - handles user registration and profile.
+
+    Used for:
+    - User registration (creating new users)
+    - User profile management
+    - Authentication endpoints
+    """
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}  # Never return password in API responses
+        }
+
+    def create(self, validated_data):
+        """
+        Create a new user with encrypted password.
+
+        This overrides the default create method to ensure
+        passwords are properly hashed using Django's auth system.
+        """
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
