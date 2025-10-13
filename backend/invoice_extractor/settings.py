@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',     # Handles flash messages
     'django.contrib.staticfiles',  # Serves CSS, JS, images
     'rest_framework',              # Django REST Framework for APIs
+    'invoices',
 ]
 
 # MIDDLEWARE: "Processing layers" that handle requests/responses
