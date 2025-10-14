@@ -2,83 +2,97 @@ import torch
 from transformers import pipeline
 import json
 import re
+import os
 from typing import Dict, Optional
 from datetime import datetime
 
 
-class LocalAIExtractor:
-    def __init__(self):
-        self.pipeline = None
-        self.load_model()
+class FreeAIExtractor:
+    """
+    Free AI extraction using LOCAL TinyLlama model
+    """
 
-    def load_model(self):
-        """Load a small local model"""
+    def __init__(self):
+        self.local_client = None
+        self.load_local_model()
+
+    def load_local_model(self):
+        """Load TinyLlama locally - no API needed"""
         try:
-            print("🔥 Loading local AI model...")
-            self.pipeline = pipeline(
+            print("🔥 Loading TinyLlama 1.1B locally...")
+            self.local_client = pipeline(
                 "text-generation",
                 model="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                 torch_dtype=torch.float16,
                 device_map="auto",
                 trust_remote_code=True
             )
-            print("✅ Local AI model loaded!")
+            print("✅ Local AI model ready!")
         except Exception as e:
-            print(f"❌ Model load failed: {e}")
-            self.pipeline = None
+            print(f"❌ Local model load failed: {e}")
+            self.local_client = None
 
-    def extract_information(self, text: str) -> Dict:
-        """Main extraction method - tries local AI first, falls back to rules"""
-        # Try local AI if model loaded
-        if self.pipeline:
+    def extract_with_groq(self, text: str) -> Dict:
+        """
+        Use LOCAL AI instead of Groq API
+        """
+        # If local model is loaded, use it
+        if self.local_client:
             try:
-                result = self._extract_with_llm(text)
-                if result and any(result.values()):  # If we got some data
-                    return result
+                return self._extract_with_local_ai(text)
             except Exception as e:
-                print(f"❌ Local AI failed: {e}")
+                print(f"❌ Local AI error: {e}")
 
-        # Fall back to reliable rule-based extraction
+        # Fallback to rule-based extraction
         return self._rule_based_extraction(text)
 
-    def _extract_with_llm(self, text: str) -> Dict:
-        """Extract using local LLM"""
+    def _extract_with_local_ai(self, text: str) -> Dict:
+        """Extract using local TinyLlama model"""
+        limited_text = text[:1500]
+
         prompt = f"""
-        Extract invoice information from this text and return ONLY JSON:
-
-        Text: {text[:1500]}
-
-        Return JSON with these keys: invoice_date, invoice_number, amount, due_date
+        <|system|>
+        Extract invoice information and return ONLY JSON with keys: invoice_date, invoice_number, amount, due_date
         Use format: {{"invoice_date": "YYYY-MM-DD", "invoice_number": "string", "amount": 100.50, "due_date": "YYYY-MM-DD"}}
-        Use null for missing values.
+        Return null for missing values.
+        </s>
+        <|user|>
+        Text: {limited_text}
+        </s>
+        <|assistant|>
+        {{"
         """
 
-        response = self.pipeline(
-            prompt,
-            max_new_tokens=200,
-            temperature=0.1,
-            do_sample=False
-        )[0]['generated_text']
+        try:
+            response = self.local_client(
+                prompt,
+                max_new_tokens=200,
+                temperature=0.1,
+                do_sample=False,
+                pad_token_id=self.local_client.tokenizer.eos_token_id
+            )[0]['generated_text']
 
-        # Extract JSON from response
-        json_str = self._extract_json(response)
-        if json_str:
-            return json.loads(json_str)
-        return {}
+            # Extract JSON from response
+            result_text = response[response.find('{'):response.find('}') + 1]
+            result_text = self._clean_json_response(result_text)
+            return json.loads(result_text)
 
-    def _extract_json(self, text: str) -> str:
-        """Extract JSON from model response"""
-        start = text.find('{')
-        end = text.find('}', start) + 1
-        if start != -1 and end != 0:
-            return text[start:end]
-        return ""
+        except Exception as e:
+            print(f"Local AI parsing failed: {e}")
+            return self._rule_based_extraction(text)
 
+    def extract_with_huggingface(self, text: str) -> Dict:
+        """
+        Keep this as backup - but now uses local model primarily
+        """
+        return self.extract_with_groq(text)  # Now both methods use local AI
+
+    # KEEP ALL YOUR EXISTING METHODS - THEY ARE PERFECT
     def _rule_based_extraction(self, text: str) -> Dict:
-        """
-        Your existing reliable rule-based extraction
-        """
+        # YOUR EXISTING CODE - DON'T CHANGE
         import re
+        from datetime import datetime
+
         result = {}
 
         # Extract amount patterns
@@ -135,8 +149,24 @@ class LocalAIExtractor:
 
         return result
 
+    def _clean_json_response(self, text: str) -> str:
+        """Clean AI response to ensure valid JSON"""
+        # Remove markdown code blocks
+        text = text.replace('```json', '').replace('```', '')
+        text = text.strip()
+
+        # Ensure it starts with { and ends with }
+        if not text.startswith('{'):
+            text = '{' + text
+        if not text.endswith('}'):
+            text = text + '}'
+
+        return text
+
     def _parse_date(self, date_str: str) -> Optional[str]:
         """Parse various date formats to YYYY-MM-DD"""
+        from datetime import datetime
+
         try:
             formats = ['%m/%d/%Y', '%m/%d/%y', '%Y-%m-%d', '%d/%m/%Y', '%d %b %Y']
             for fmt in formats:

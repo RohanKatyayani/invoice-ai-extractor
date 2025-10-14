@@ -5,6 +5,15 @@ This is like the "CONFIGURATION MANUAL" for our Django project.
 It tells Django how to behave - where files are, what apps to use, database info, etc.
 """
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Use environment variables
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # BASE_DIR = The root directory of our project (backend/invoice_extractor)
 # This helps us build paths that work on any computer
@@ -31,12 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',     # Handles flash messages
     'django.contrib.staticfiles',  # Serves CSS, JS, images
     'rest_framework',              # Django REST Framework for APIs
+    'corsheaders',
     'invoices',
 ]
 
 # MIDDLEWARE: "Processing layers" that handle requests/responses
 # Like security checks, session management, etc.
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',           # Security headers
     'django.contrib.sessions.middleware.SessionMiddleware',    # User sessions
     'django.middleware.common.CommonMiddleware',               # URL processing
@@ -108,3 +119,12 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',  # This enables HTML
     ]
 }
+
+# CORS Settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
