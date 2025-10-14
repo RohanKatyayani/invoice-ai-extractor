@@ -50,18 +50,8 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     #     """
     #     serializer.save(user=self.request.user)
 
-    def perform_create(self, serializer):
-        """
-        Automatically assign the current user when creating an invoice.
-        Only allow creation for authenticated users.
-        """
-        if self.request.user.is_authenticated:
-            serializer.save(user=self.request.user)
-        else:
-            # If not authenticated, you might want to handle this differently
-            # For now, we'll raise an error
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("You must be logged in to create invoices")
+    # DELETE the perform_create method entirely
+    # Let the serializer handle user assignment
 
     @action(detail=True, methods=['post'])
     def extract_information(self, request, pk=None):

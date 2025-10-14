@@ -12,7 +12,7 @@ class Invoice(models.Model):
     """
 
     # File information
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     original_file = models.FileField(upload_to='invoices/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

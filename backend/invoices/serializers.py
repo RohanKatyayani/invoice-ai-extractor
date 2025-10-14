@@ -34,11 +34,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """
         Custom create method to handle file uploads.
-        Automatically assigns the current user.
+        Only assign user if they are authenticated.
         """
-        # Get the current user from the request context
         user = self.context['request'].user
-        validated_data['user'] = user
+        # Only assign user if they are properly authenticated (not AnonymousUser)
+        if user.is_authenticated:
+            validated_data['user'] = user
+        # If not authenticated, user field remains null (which we now allow)
         return super().create(validated_data)
 
 class UserSerializer(serializers.ModelSerializer):
@@ -52,11 +54,12 @@ class UserSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True}  # Never return password in API responses
-        }
+        model = Invoice
+        fields = [
+            'id', 'user', 'invoice_date', 'invoice_number', 'amount', 'due_date',
+            'original_file', 'uploaded_at', 'extraction_method', 'confidence_score',
+        ]
+        read_only_fields = ['id', 'user', 'uploaded_at', 'extraction_method', 'confidence_score']
 
     def create(self, validated_data):
         """
