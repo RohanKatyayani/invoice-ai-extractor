@@ -205,3 +205,20 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+# Django
+*.sqlite3
+db.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.env
+
+# Uploaded files
+backend/invoices/*.pdf
+media/
+uploads/
+
+# IDE
+.idea/
+.vscode/
