@@ -14,6 +14,13 @@ An intelligent invoice processing system that uses AI to automatically extract k
 - Frontend: React
 - Database: PostgreSQL
 
+## Security Setup
+
+1. **Environment Configuration:**
+   ```bash
+   cp backend/.env.example backend/.env
+   # Edit backend/.env with your settings
+
 ## Quick Start
 ```bash
 # Backend
