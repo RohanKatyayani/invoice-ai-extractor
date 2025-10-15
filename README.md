@@ -2,18 +2,18 @@
 
 An intelligent invoice processing system that uses AI to automatically extract key information from PDF invoices.
 
-## Features
-- PDF invoice upload
-- AI-powered data extraction (Invoice Date, Number, Amount, Due Date)
-- RESTful API
-- Web interface
+## 📊 Features
+- AI-powered invoice data extraction
+- Support for multiple invoice formats
+- Confidence scoring for extractions
+- Drag & drop interface
+- MongoDB integration
 
-## Tech Stack
-- Backend: Django REST Framework
-- AI: OpenAI GPT + Traditional NLP
-- Frontend: React
-- Database: PostgreSQL
-
+## 🛠️ Tech Stack
+- **Backend**: Django, MongoDB, BERT
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **AI**: BERT, Heuristics, Transformers, Regex patterns
+  
 ## Security Setup
 
 1. **Environment Configuration:**
@@ -30,5 +30,4 @@ python manage.py runserver
 
 # Frontend  
 cd frontend
-npm install
-npm start
+python -m http.server 3000
