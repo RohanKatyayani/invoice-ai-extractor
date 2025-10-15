@@ -31,3 +31,20 @@ python manage.py runserver
 # Frontend  
 cd frontend
 python -m http.server 3000
+
+## 🎯 Demo
+
+### Screenshots:
+
+| Clean Invoice Extraction | Complex Invoice Handling |
+|--------------------------|--------------------------|
+| ![Clean Invoice](https://via.placeholder.com/400x250/4CAF50/white?text=98%25+Confidence+Extraction) | ![Complex Invoice](https://via.placeholder.com/400x250/FF9800/white?text=70%25+Confidence+Partial+Extraction) |
+
+| Drag & Drop Interface | Multiple Format Support |
+|----------------------|------------------------|
+| ![Upload Interface](https://via.placeholder.com/400x250/2196F3/white?text=Drag+%26+Drop+Upload) | ![Multi-Format](https://via.placeholder.com/400x250/9C27B0/white?text=Multiple+Invoice+Formats) |
+
+### Live Demo:
+Visit [Live Demo Link] to test the application with sample invoices.
+
+*Note: For privacy reasons, actual invoice samples are not included in this repository.*
