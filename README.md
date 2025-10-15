@@ -23,18 +23,18 @@ An intelligent invoice processing system that uses AI to automatically extract k
    cp backend/.env.example backend/.env
    # Edit backend/.env with your settings
 
-## Quick Start
-```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-python manage.py runserver
+2. **Quick Start**
+   ```bash
+   # Backend
+   cd backend
+   pip install -r requirements.txt
+   python manage.py runserver
+  
+   # Frontend  
+   cd frontend
+   python -m http.server 3000
 
-# Frontend  
-cd frontend
-python -m http.server 3000
-
-## 🎯 Demo
+3. **🎯 Demo**
 
 ### Screenshots:
 
