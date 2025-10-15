@@ -35,6 +35,9 @@ python -m http.server 3000
 ## 🎯 Demo
 
 ### Screenshots:
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 01 44 PM" src="https://github.com/user-attachments/assets/e49f2863-9a5b-4201-b520-4275f2c4d3b7" />
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 02 52 PM" src="https://github.com/user-attachments/assets/0bc61766-17f1-48f4-bd82-8dbcc7e20149" />
+
 
 <img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 03 39 PM" src="https://github.com/user-attachments/assets/34e3f18d-91ff-4bed-9860-7ad8fd9c9cb5" />
 <img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 02 52 PM" src="https://github.com/user-attachments/assets/c6e19292-b3e0-4fe7-a8a6-8a3f571f00e5" />
