@@ -17,9 +17,9 @@ class PDFExtractor:
                     if page_text:
                         text += page_text + "\n"
 
-            print(f"📄 Extracted {len(text)} characters")
+            print(f"Extracted {len(text)} characters")
             return text if text.strip() else None
 
         except Exception as e:
-            print(f"❌ PDF extraction failed: {e}")
+            print(f"PDF extraction failed: {e}")
             return None

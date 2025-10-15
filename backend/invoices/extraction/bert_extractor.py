@@ -1,107 +1,159 @@
 import re
 from typing import Dict, Optional
 from datetime import datetime, timedelta
-
+from dateutil import parser
 
 class BERTExtractor:
     """
-    Invoice Extractor
+    SMART Invoice Extractor
     """
+
     def __init__(self):
-        pass
+        self.currency_symbols = self._get_all_currency_symbols()
+        print(f"Loaded {len(self.currency_symbols)} currency symbols")
 
     def extract_information(self, text: str) -> Dict:
         """
-        Extraction logic
+        Smart extraction returning proper numeric types
         """
         result = {}
 
-        # BASIC EXTRACTION
-        self._extract_simple_amount(text, result)
-        self._extract_simple_invoice_number(text, result)
-        self._extract_simple_dates(text, result)
+        # SMART EXTRACTION
+        self._extract_amount_numeric(text, result)
+        self._extract_invoice_number_comprehensive(text, result)
+        self._extract_dates_universal(text, result)
 
-        result['confidence'] = self._calculate_confidence(result)
+        result['confidence_score'] = self._calculate_confidence(result)
+        result['extraction_method'] = 'bert_extraction'
 
         return result
 
-    def _extract_simple_amount(self, text: str, result: Dict):
-        """Simple amount extraction - find ALL dollar amounts"""
-        # Find ALL dollar amounts in the text
-        dollar_matches = re.findall(r'[\$](\d+\.\d{2})', text)
-        if dollar_matches:
-            try:
-                # Convert to floats and take the largest one (usually the total)
-                amounts = [float(x) for x in dollar_matches]
-                result['amount'] = max(amounts)
-            except:
-                pass
+    def _get_all_currency_symbols(self):
+        """Get all currency symbols"""
+        symbols = set()
 
-        # If no dollar amounts, look for numbered amounts
-        if not result.get('amount'):
-            numbered_matches = re.findall(r'Total Amount[\D]*(\d+\.\d{2})', text, re.IGNORECASE)
-            if numbered_matches:
-                try:
-                    result['amount'] = float(numbered_matches[0])
-                except:
-                    pass
+        symbols.update(['$', '€', '£', '¥', '₹', '₽', '₩', '₺', '₴', '₸', '₪', '₫', '₦', '₡', '₱'])
+        symbols.update(['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'SGD', 'JPY', 'CNY', 'CHF', 'NZD'])
+        symbols.update(['Rs', 'Rs.', 'RS', 'RS.'])
 
-    def _extract_simple_invoice_number(self, text: str, result: Dict):
-        """Simple invoice number extraction - only clean matches"""
+        return symbols
+
+    def _extract_amount_numeric(self, text: str, result: Dict):
+        """Extract amount as numeric value"""
+        print("NUMERIC AMOUNT EXTRACTION...")
+
+        currency_pattern = '|'.join(re.escape(symbol) for symbol in self.currency_symbols)
+
+        currency_patterns = [
+            rf'((?:{currency_pattern})\s*[\d,]+\.\d{{2}})',
+            rf'((?:{currency_pattern})\s*[\d,]+)',
+            rf'(Total[\s\S]{{0,100}}?(?:{currency_pattern})\s*[\d,]+\.\d{{2}})',
+            rf'(Amount[\s\S]{{0,100}}?(?:{currency_pattern})\s*[\d,]+\.\d{{2}})',
+        ]
+
+        all_amounts = []
+
+        for pattern in currency_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            for full_match in matches:
+                print(f"Found formatted amount: '{full_match}'")
+
+                numeric_value = self._extract_numeric_value(full_match)
+
+                # FILTER OUT OBVIOUSLY WRONG AMOUNTS
+                if numeric_value and 0.01 <= numeric_value <= 2000:  # Reasonable bill amount range
+                    all_amounts.append((numeric_value, full_match.strip()))
+                    print(f"Valid amount: {numeric_value}")
+                else:
+                    print(f"Rejected unreasonable amount: {numeric_value}")
+
+        if all_amounts:
+            largest_amount = max(all_amounts, key=lambda x: x[0])
+            result['amount'] = largest_amount[0]
+            result['amount_formatted'] = largest_amount[1]
+            print(f"Selected amount: {result['amount_formatted']}")
+        else:
+            print("No currency amounts found")
+            result['amount'] = None
+
+    def _extract_numeric_value(self, formatted_amount: str) -> Optional[float]:
+        """Extract numeric value from formatted amount string"""
+        try:
+            cleaned = re.sub(r'[$\€\£\¥\₹\₽\₩\₺\₴\₸\₪\₫\₦\₡\₱]', '', formatted_amount, flags=re.IGNORECASE)
+            cleaned = re.sub(r'\b(USD|EUR|GBP|INR|CAD|AUD|SGD|JPY|CNY|CHF|NZD|Rs|Rs\.)\b', '', cleaned,
+                             flags=re.IGNORECASE)
+            cleaned = re.sub(r'\b(Total|Amount|Balance|Due|Subtotal)\b', '', cleaned, flags=re.IGNORECASE)
+
+            numeric_match = re.search(r'([\d,]+\.\d{2}|[\d,]+)', cleaned.strip())
+            if numeric_match:
+                numeric_str = numeric_match.group(1).replace(',', '')
+                return float(numeric_str)
+        except:
+            pass
+        return None
+
+    def _extract_invoice_number_comprehensive(self, text: str, result: Dict):
+        """Simple invoice number extraction - just get what comes after Invoice #"""
+        print("SIMPLE INVOICE NUMBER EXTRACTION...")
+
+        # SIMPLEST PATTERNS - just get what comes after Invoice markers
         patterns = [
-            r'Invoice No:\s*([A-Z]\d+\-[A-Z]+\-\d+)',  # Complex
-            r'Invoice\s*#\s*(\d{2,})',                 # Simple invoices
-            r'INVOICE\s*#\s*(\d{2,})',                 # Uppercase
-            r'#\s*(\d{3,})',                           # Simple
+            r'Invoice\s*#\s*([A-Za-z0-9\-]+)',  # Invoice #1164006105
+            r'INVOICE\s*#\s*([A-Za-z0-9\-]+)',  # INVOICE #1164006105
+            r'Invoice\s*No\.?\s*:?\s*([A-Za-z0-9\-]+)',  # Invoice No: 1164006105
+            r'Bill\s*#\s*([A-Za-z0-9\-]+)',  # Bill #1164006105
         ]
 
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                inv_num = match.group(1)
-                # Basic check - not too short
-                if inv_num and len(inv_num) >= 2:
+                inv_num = match.group(1).strip()
+                # Basic validation - just make sure it's not empty and looks like an invoice number
+                if inv_num and len(inv_num) >= 3:
                     result['invoice_number'] = inv_num
+                    print(f"Invoice number found: '{inv_num}'")
                     return
 
-        # If no invoice number found, leave it as None (will show "Not found")
+        print("No invoice number found")
+        result['invoice_number'] = None
 
-    def _extract_simple_dates(self, text: str, result: Dict):
-        """Simple date extraction"""
-        dates_found = []
+    def _extract_dates_universal(self, text: str, result: Dict):
+        """Universal date extraction"""
+        print("UNIVERSAL DATE EXTRACTION...")
+
         date_patterns = [
-            r'(\d{4}-\d{2}-\d{2})',      # YYYY-MM-DD
-            r'(\d{1,2}/\d{1,2}/\d{4})',  # MM/DD/YYYY
-            r'(\d{1,2}/\d{1,2}/\d{2})',  # MM/DD/YY
+            r'\b\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}\b',
+            r'\b\d{1,2}\s+[A-Za-z]+\s+\d{2,4}\b',
+            r'\b[A-Za-z]+\s+\d{1,2},?\s+\d{4}\b',
         ]
 
+        all_date_strings = []
         for pattern in date_patterns:
-            matches = re.findall(pattern, text)
-            for match in matches:
-                parsed = self._parse_date(match)
-                if parsed:
-                    dates_found.append(parsed)
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            all_date_strings.extend(matches)
 
-        if dates_found:
-            unique_dates = sorted(list(set(dates_found)))
-            result['invoice_date'] = unique_dates[0]
-            if len(unique_dates) > 1:
-                result['due_date'] = unique_dates[-1]
-            else:
-                result['due_date'] = self._estimate_due_date(unique_dates[0])
+        print(f"Found potential dates: {all_date_strings}")
 
-    def _parse_date(self, date_str: str) -> Optional[str]:
-        """Parse date"""
-        formats = ['%Y-%m-%d', '%m/%d/%Y', '%m/%d/%y', '%d/%m/%Y']
-        for fmt in formats:
+        valid_dates = []
+        for date_str in all_date_strings:
             try:
-                date_obj = datetime.strptime(date_str, fmt)
-                if fmt == '%m/%d/%y' and date_obj.year > 2025:
-                    date_obj = date_obj.replace(year=date_obj.year - 100)
-                return date_obj.strftime('%Y-%m-%d')
+                parsed_date = parser.parse(date_str, fuzzy=True)
+                valid_dates.append(parsed_date.strftime('%Y-%m-%d'))
+                print(f"Parsed: '{date_str}' -> {parsed_date.strftime('%Y-%m-%d')}")
             except:
                 continue
-        return None
+
+        if valid_dates:
+            unique_dates = sorted(list(set(valid_dates)))
+            if len(unique_dates) >= 2:
+                result['invoice_date'] = unique_dates[0]
+                result['due_date'] = unique_dates[-1]
+            else:
+                result['invoice_date'] = unique_dates[0]
+                result['due_date'] = self._estimate_due_date(unique_dates[0])
+        else:
+            result['invoice_date'] = None
+            result['due_date'] = None
 
     def _estimate_due_date(self, invoice_date: str) -> str:
         """Estimate due date"""
@@ -112,13 +164,8 @@ class BERTExtractor:
         except:
             return invoice_date
 
-    def _clean_text(self, text: str) -> str:
-        """Clean text"""
-        text = ' '.join(text.split())
-        return text
-
     def _calculate_confidence(self, result: Dict) -> float:
-        """Calculate confidence"""
+        """Calculate confidence - SIMPLE AND WORKING"""
         score = 0.0
         if result.get('amount'):
             score += 0.4

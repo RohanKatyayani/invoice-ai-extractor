@@ -1,6 +1,6 @@
 from .bert_extractor import BERTExtractor
 from .pdf_extractor import PDFExtractor
-
+from decimal import Decimal
 
 class InvoiceProcessor:
     def __init__(self):
@@ -9,7 +9,7 @@ class InvoiceProcessor:
 
     def process_invoice(self, pdf_path: str) -> dict:
         """Main processing function"""
-        print(f"🚀 Processing: {pdf_path}")
+        print(f"Processing: {pdf_path}")
 
         # Extract text
         text = self.pdf_extractor.extract_text(pdf_path)
@@ -25,7 +25,7 @@ class InvoiceProcessor:
             'amount': result.get('amount'),
             'due_date': result.get('due_date'),
             'extraction_method': 'bert_extraction',
-            'confidence_score': result.get('confidence', 0.5),
+            'confidence_score': result.get('confidence_score', 0.0),  # ONLY CHANGE: confidence -> confidence_score
             'raw_text': text[:1000]  # Store first 1000 chars
         }
 

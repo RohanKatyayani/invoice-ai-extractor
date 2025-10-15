@@ -9,7 +9,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
     - Validating incoming API data
     - Controlling which fields are exposed via API
     """
-
     class Meta:
         model = Invoice
         fields = [
