@@ -35,16 +35,11 @@ python -m http.server 3000
 ## 🎯 Demo
 
 ### Screenshots:
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 01 44 PM" src="https://github.com/user-attachments/assets/e49f2863-9a5b-4201-b520-4275f2c4d3b7" />
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 02 52 PM" src="https://github.com/user-attachments/assets/0bc61766-17f1-48f4-bd82-8dbcc7e20149" />
 
-| Clean Invoice Extraction | Complex Invoice Handling |
-|--------------------------|--------------------------|
-| ![Clean Invoice](https://via.placeholder.com/400x250/4CAF50/white?text=98%25+Confidence+Extraction) | ![Complex Invoice](https://via.placeholder.com/400x250/FF9800/white?text=70%25+Confidence+Partial+Extraction) |
 
-| Drag & Drop Interface | Multiple Format Support |
-|----------------------|------------------------|
-| ![Upload Interface](https://via.placeholder.com/400x250/2196F3/white?text=Drag+%26+Drop+Upload) | ![Multi-Format](https://via.placeholder.com/400x250/9C27B0/white?text=Multiple+Invoice+Formats) |
-
-### Live Demo:
-Visit [Live Demo Link] to test the application with sample invoices.
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 03 39 PM" src="https://github.com/user-attachments/assets/34e3f18d-91ff-4bed-9860-7ad8fd9c9cb5" />
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 10 02 52 PM" src="https://github.com/user-attachments/assets/c6e19292-b3e0-4fe7-a8a6-8a3f571f00e5" />
 
 *Note: For privacy reasons, actual invoice samples are not included in this repository.*
