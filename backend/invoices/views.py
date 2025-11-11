@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from .models import Invoice
 from .serializers import InvoiceSerializer
 from .extraction import InvoiceProcessor
+from django.shortcuts import render
+from django.http import HttpResponse
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
@@ -60,3 +62,50 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 {"error": f"Extraction failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+def invoice_table(request):
+    """Simple table view"""
+    invoices = Invoice.objects.all()
+
+    html = """
+    <html>
+    <style>
+        table { border-collapse: collapse; width: 100%; margin: 20px; }
+        th, td { border: 1px solid black; padding: 10px; text-align: left; }
+        th { background: #f0f0f0; }
+        tr:nth-child(even) { background: #f9f9f9; }
+    </style>
+    <body>
+        <h1>📊 INVOICE DATA TABLE</h1>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Invoice Number</th>
+                <th>Amount</th>
+                <th>Invoice Date</th>
+                <th>Due Date</th>
+                <th>Confidence</th>
+            </tr>
+    """
+
+    for invoice in invoices:
+        html += f"""
+            <tr>
+                <td>{invoice.id}</td>
+                <td><strong>{invoice.invoice_number or 'Not Found'}</strong></td>
+                <td>${invoice.amount or 'Not Found'}</td>
+                <td>{invoice.invoice_date or 'Not Found'}</td>
+                <td>{invoice.due_date or 'Not Found'}</td>
+                <td>{invoice.confidence_score}</td>
+            </tr>
+        """
+
+    html += f"""
+        </table>
+        <div style="margin: 20px;">
+            <strong>Total Invoices: {invoices.count()}</strong>
+        </div>
+    </body>
+    </html>
+    """
+    return HttpResponse(html)

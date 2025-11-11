@@ -4,8 +4,8 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'invoices', views.InvoiceViewSet)
-# Remove the users line entirely
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('table/', views.invoice_table, name='invoice_table'),
 ]

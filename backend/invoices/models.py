@@ -1,3 +1,10 @@
+# "The system has three main layers:"
+# 1. Frontend (React) - User interface for uploads/results
+# 2. Backend (Django) - API and business logic
+# 3. AI Engine (Custom) - Intelligent extraction with BERT + regex
+
+#This is our data blueprint - stores everything with proper types for production use.
+
 from django.db import models
 from django.contrib.auth.models import User
 
